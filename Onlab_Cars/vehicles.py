@@ -11,8 +11,10 @@ class Vehicle:
         numbers = ""
         for letter in road:
             number = ord(letter) - 96
-            numbers += str(abs(number))
+            numbers += str(abs(int(number/2)))
         self.road_id = numbers
+        print("Magic: ",self.road_id)
+        print("Road: ", self.road)
 
     def __str__(self):
         string = "ID: " + self.vehicle_id + " Geo: (" + str(round(self.position[0], 1)) + ", " + str(

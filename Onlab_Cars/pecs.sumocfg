@@ -1,0 +1,11 @@
+<configuration>
+    <input>
+        <net-file value="pecs.net.xml"/>
+        <route-files value="pecs.trips.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="1000"/>
+    </time>
+
+</configuration>

@@ -11,14 +11,15 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
-traci.start(["sumo-gui", "-c", "test.sumocfg"])
+traci.start(["sumo-gui", "-c", "pecs.sumocfg"])
 
 city = Map(traci.edge.getIDList())
 # TODO at kell irni
 
+colours = [(230, 25, 75), (60, 180, 75), (255, 225, 25), (0, 130, 200), (245, 130, 48), (145, 30, 180), (70, 240, 240), (240, 50, 230), (210, 245, 60), (250, 190, 190), (0, 128, 128), (230, 190, 255), (170, 110, 40), (255, 250, 200), (128, 0, 0), (170, 255, 195), (128, 128, 0), (255, 215, 180), (0, 0, 128), (128, 128, 128), (255, 255, 255), (255, 255, 255)]
 
 step = 0
-while step < 200:
+while step < 500:
     traci.simulationStep()
     step += 1
     if len(traci.vehicle.getIDList()) > 3:
@@ -47,18 +48,18 @@ while step < 200:
 
     arr = np.array(arr)
     if len(arr) > 2:
-        ass = DBSCAN(eps=40, min_samples=2, metric=similarity).fit(arr.astype(np.float64))
-        print(ass.labels_)
+        done_clusters = DBSCAN(eps=40, min_samples=4, metric=similarity).fit(arr.astype(np.float64))
+        print(done_clusters.labels_)
         runner = 0
-        x = ass.labels_
-
+        x = done_clusters.labels_
+        no_ofclusters = max(done_clusters.labels_) + 1
         for road in city.roads:
             for car in road.cars_on_this_road:
                 Bass = x[runner]
                 if Bass == -1:
-                    traci.vehicle.setColor(car.vehicle_id, [255, 255, 255])
+                    traci.vehicle.setColor(car.vehicle_id, colours[21])
                 else:
-                    traci.vehicle.setColor(car.vehicle_id, [50, 200, 50])
+                    traci.vehicle.setColor(car.vehicle_id, colours[Bass%22])
                 runner += 1
 
     # city.print()
