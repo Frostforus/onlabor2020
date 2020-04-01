@@ -20,11 +20,7 @@ def jaccard_similarity(list1, list2):
 
 
 sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
-traci.start(["sumo-gui", "-c", "pecs.sumocfg"])
-
-city = Map(traci.edge.getIDList())
-# TODO at kell irni
-
+traci.start(["sumo-gui", "-c", "pecs_belvaros_cut.sumocfg"])
 colours = [(230, 25, 75), (60, 180, 75), (255, 225, 25), (0, 130, 200), (245, 130, 48), (145, 30, 180), (70, 240, 240),
            (240, 50, 230), (210, 245, 60), (250, 190, 190), (0, 128, 128), (230, 190, 255), (170, 110, 40),
            (255, 250, 200), (128, 0, 0), (170, 255, 195), (128, 128, 0), (255, 215, 180), (0, 0, 128), (128, 128, 128),
@@ -32,6 +28,19 @@ colours = [(230, 25, 75), (60, 180, 75), (255, 225, 25), (0, 130, 200), (245, 13
 
 old_clusters = {}
 temp_clusters = {}
+
+clusters_life = []
+
+for i in range(0, 50):
+    clusters_life.append(0)
+
+print(clusters_life)
+
+city = Map(traci.edge.getIDList())
+# TODO at kell irni
+
+for tls in traci.trafficlight.getIDList():
+    traci.trafficlight.setPhaseDuration(tls, 120)
 
 step = 0
 while step < 500:
@@ -83,7 +92,6 @@ while step < 500:
 
                 runner += 1
 
-
         print("New clustered formed: ", temp_clusters)
         print("Previous clusters:", old_clusters)
         new_clusters = {}
@@ -99,7 +107,7 @@ while step < 500:
                     # print("Comparing: {} with {}".format(j, i), jaccard_similarity(old_clusters[j], temp_clusters[i]))
                     if jaccard_similarity(old_clusters[j], temp_clusters[i]) >= 0.25:
                         old_temp_clusters[j] = temp_clusters[i]
-                        print("Similar: Old[{}], New[{}]".format(j,i))
+                        print("Similar: Old[{}], New[{}]".format(j, i))
                         overwritten = True
 
             if overwritten == False:
@@ -122,7 +130,7 @@ while step < 500:
 
         old_clusters = copy.deepcopy(old_temp_clusters)
         print("\nTotally new clusters: ", new_clusters)
-        #print("Old_temp:", old_temp_clusters)
+        # print("Old_temp:", old_temp_clusters)
 
         for k in new_clusters:
             for i in range(1, 100):
@@ -142,12 +150,37 @@ while step < 500:
         old_clusters = copy.deepcopy(result)
         print(old_clusters)
 
+        for i in range(0, len(clusters_life)):
+            if i in old_clusters.keys():
+                # print("this cluster is alive:", i)
+                clusters_life[i] += 1
+            else:
+                # print("this cluster is dead:", i)
+                clusters_life[i] = 0
+
+        print("LifeSpans: ")
+
+        x = 0
+        for i in clusters_life:
+            if i != 0:
+                print(x, ": ", i)
+            x += 1
         for i in old_clusters:
             for j in old_clusters[i]:
                 traci.vehicle.setColor(j, colours[i % 22])
 
         # old_clusters = copy.deepcopy(temp_clusters)
         temp_clusters.clear()
+
+    print("Testing Traffic Light controls:")
+    if step % 20 == 0:
+        for tls in traci.trafficlight.getIDList():
+            # traci.trafficlight.setPhaseDuration(tlsID=tls, phaseDuration= 30)
+            new_state = int(60 / max(step % 100, 20))
+            traci.trafficlight.setPhase(tlsID=tls, index=new_state)
+            print("Traffic Light state changed:", new_state)
+
+
 
     # city.print()
 
