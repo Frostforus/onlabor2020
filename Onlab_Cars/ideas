@@ -1,1 +1,10 @@
 cluster weights to junction = number of cars in cluster/distance fromcluster
+Putting clusters into its own data structure to track information:
+    what road its on pipa
+    how far its from a junction
+    how many cars it has
+
+
+set link state lesz valszeg a jo ott lehet az egyes linkeket allitani
+
+Problems with giving green = If a cluster has priority, which lights turn green?:( All coming from that direction? That's a problem because we need Custom lights for that)

@@ -1,0 +1,1 @@
+C:\PythonProjects\SUMO Projects\tools\contributed\sumopy\coremodules\network>netconvert  -s pecs.xml --remove-edges.by-type "highway.service, highway.footway, highway.footpath, highway.pedestrian, highway.cycleway, highway.steps, railway.rail" --remove-edges.isolated

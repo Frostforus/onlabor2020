@@ -30,9 +30,14 @@ old_clusters = {}
 temp_clusters = {}
 
 clusters_life = []
+clusters_edge = []
+
 
 for i in range(0, 50):
     clusters_life.append(0)
+
+for i in range(0, 50):
+    clusters_edge.append("")
 
 print(clusters_life)
 
@@ -40,7 +45,7 @@ city = Map(traci.edge.getIDList())
 # TODO at kell irni
 
 for tls in traci.trafficlight.getIDList():
-    traci.trafficlight.setPhaseDuration(tls, 120)
+    traci.trafficlight.setPhaseDuration(tls, 12000)
 
 step = 0
 while step < 500:
@@ -92,8 +97,8 @@ while step < 500:
 
                 runner += 1
 
-        print("New clustered formed: ", temp_clusters)
-        print("Previous clusters:", old_clusters)
+        #print("New clustered formed: ", temp_clusters)
+        #print("Previous clusters:", old_clusters)
         new_clusters = {}
         old_temp_clusters = {}
 
@@ -107,12 +112,12 @@ while step < 500:
                     # print("Comparing: {} with {}".format(j, i), jaccard_similarity(old_clusters[j], temp_clusters[i]))
                     if jaccard_similarity(old_clusters[j], temp_clusters[i]) >= 0.25:
                         old_temp_clusters[j] = temp_clusters[i]
-                        print("Similar: Old[{}], New[{}]".format(j, i))
+                        #print("Similar: Old[{}], New[{}]".format(j, i))
                         overwritten = True
 
             if overwritten == False:
                 # egy temp dictionaryba berakja
-                print("Not similar")
+                #print("Not similar")
                 for k in range(0, 100):
                     if k not in new_clusters.keys():
                         new_clusters[k] = temp_clusters[i]
@@ -120,7 +125,7 @@ while step < 500:
                         break
 
         if len(old_clusters) == 0:
-            print("No old clusters")
+            #print("No old clusters")
             for i in temp_clusters:
                 for k in range(0, 100):
                     if k not in new_clusters.keys():
@@ -129,7 +134,7 @@ while step < 500:
                         break
 
         old_clusters = copy.deepcopy(old_temp_clusters)
-        print("\nTotally new clusters: ", new_clusters)
+        #print("\nTotally new clusters: ", new_clusters)
         # print("Old_temp:", old_temp_clusters)
 
         for k in new_clusters:
@@ -139,7 +144,7 @@ while step < 500:
 
                     break
 
-        print("OLD:", old_clusters)
+        #print("OLD:", old_clusters)
 
         result = {}
 
@@ -158,13 +163,24 @@ while step < 500:
                 # print("this cluster is dead:", i)
                 clusters_life[i] = 0
 
-        print("LifeSpans: ")
+        print("\nClusters Edge:")
+
+        # Finding what edge a cluster is on
+        for i in old_clusters:
+            print(old_clusters[i])
+            for j in old_clusters[i]:
+                clusters_edge[i] = traci.vehicle.getRoadID(j)
+                break
+            print(i, ": ", clusters_edge[i])
+
 
         x = 0
         for i in clusters_life:
             if i != 0:
-                print(x, ": ", i)
+                pass
+                #print(x, ": ", i)
             x += 1
+
         for i in old_clusters:
             for j in old_clusters[i]:
                 traci.vehicle.setColor(j, colours[i % 22])
@@ -172,13 +188,20 @@ while step < 500:
         # old_clusters = copy.deepcopy(temp_clusters)
         temp_clusters.clear()
 
-    print("Testing Traffic Light controls:")
     if step % 20 == 0:
+        print("Testing Traffic Light controls:")
         for tls in traci.trafficlight.getIDList():
             # traci.trafficlight.setPhaseDuration(tlsID=tls, phaseDuration= 30)
             new_state = int(60 / max(step % 100, 20))
-            traci.trafficlight.setPhase(tlsID=tls, index=new_state)
-            print("Traffic Light state changed:", new_state)
+            print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
+            print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
+            print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
+
+            print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
+            print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
+
+            # traci.trafficlight.setPhase(tlsID=tls, index=new_state)
+            # print("\n\n\nTraffic Light state changed:", new_state)
 
 
 

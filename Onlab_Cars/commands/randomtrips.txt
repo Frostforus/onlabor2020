@@ -1,0 +1,1 @@
+C:\PythonProjects\SUMO Projects\tools>python randomTrips.py -n pecs.net.xml -e 500 -o pecs.trips.xml

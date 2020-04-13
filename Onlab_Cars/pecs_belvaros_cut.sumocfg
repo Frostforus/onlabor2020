@@ -1,0 +1,11 @@
+<configuration>
+    <input>
+        <net-file value="pecs_belvaros_cut.net.xml"/>
+        <route-files value="pecs_belvaros_cut.trips.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="100"/>
+    </time>
+</configuration>
+
