@@ -13,3 +13,14 @@ class Clusters:
 
     def __init__(self):
         self.Clusters = dict()
+
+
+def find_priority_edge(clus_nom, all_clusters):
+    priority_cluster = 0
+    biggest_len = 0
+    for i in clus_nom:
+        if len(all_clusters[i]) > biggest_len:
+            biggest_len = len(all_clusters[i])
+            priority_cluster = int(i)
+
+    return priority_cluster

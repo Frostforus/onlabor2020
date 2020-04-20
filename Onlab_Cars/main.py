@@ -29,26 +29,29 @@ colours = [(230, 25, 75), (60, 180, 75), (255, 225, 25), (0, 130, 200), (245, 13
 old_clusters = {}
 temp_clusters = {}
 
-clusters_life = []
-clusters_edge = []
 
 
-for i in range(0, 50):
-    clusters_life.append(0)
 
-for i in range(0, 50):
-    clusters_edge.append("")
-
-print(clusters_life)
 
 city = Map(traci.edge.getIDList())
 # TODO at kell irni
 
+# Basically infinite phase duration
 for tls in traci.trafficlight.getIDList():
     traci.trafficlight.setPhaseDuration(tls, 12000)
 
 step = 0
 while step < 500:
+    clusters_life = []
+    clusters_edge = []
+
+    for i in range(0, 50):
+        clusters_life.append(0)
+
+    for i in range(0, 50):
+        clusters_edge.append("")
+
+
     traci.simulationStep()
     step += 1
     if len(traci.vehicle.getIDList()) > 3:
@@ -97,8 +100,8 @@ while step < 500:
 
                 runner += 1
 
-        #print("New clustered formed: ", temp_clusters)
-        #print("Previous clusters:", old_clusters)
+        # print("New clustered formed: ", temp_clusters)
+        # print("Previous clusters:", old_clusters)
         new_clusters = {}
         old_temp_clusters = {}
 
@@ -112,12 +115,12 @@ while step < 500:
                     # print("Comparing: {} with {}".format(j, i), jaccard_similarity(old_clusters[j], temp_clusters[i]))
                     if jaccard_similarity(old_clusters[j], temp_clusters[i]) >= 0.25:
                         old_temp_clusters[j] = temp_clusters[i]
-                        #print("Similar: Old[{}], New[{}]".format(j, i))
+                        # print("Similar: Old[{}], New[{}]".format(j, i))
                         overwritten = True
 
             if overwritten == False:
                 # egy temp dictionaryba berakja
-                #print("Not similar")
+                # print("Not similar")
                 for k in range(0, 100):
                     if k not in new_clusters.keys():
                         new_clusters[k] = temp_clusters[i]
@@ -125,7 +128,7 @@ while step < 500:
                         break
 
         if len(old_clusters) == 0:
-            #print("No old clusters")
+            # print("No old clusters")
             for i in temp_clusters:
                 for k in range(0, 100):
                     if k not in new_clusters.keys():
@@ -134,7 +137,7 @@ while step < 500:
                         break
 
         old_clusters = copy.deepcopy(old_temp_clusters)
-        #print("\nTotally new clusters: ", new_clusters)
+        # print("\nTotally new clusters: ", new_clusters)
         # print("Old_temp:", old_temp_clusters)
 
         for k in new_clusters:
@@ -144,7 +147,7 @@ while step < 500:
 
                     break
 
-        #print("OLD:", old_clusters)
+        # print("OLD:", old_clusters)
 
         result = {}
 
@@ -171,14 +174,13 @@ while step < 500:
             for j in old_clusters[i]:
                 clusters_edge[i] = traci.vehicle.getRoadID(j)
                 break
-            print(i, ": ", clusters_edge[i])
-
+            print(i, ": ", clusters_edge[i], "with a size of: ", len(old_clusters[i]))
 
         x = 0
         for i in clusters_life:
             if i != 0:
                 pass
-                #print(x, ": ", i)
+                # print(x, ": ", i)
             x += 1
 
         for i in old_clusters:
@@ -188,22 +190,61 @@ while step < 500:
         # old_clusters = copy.deepcopy(temp_clusters)
         temp_clusters.clear()
 
-    if step % 20 == 0:
-        print("Testing Traffic Light controls:")
-        for tls in traci.trafficlight.getIDList():
-            # traci.trafficlight.setPhaseDuration(tlsID=tls, phaseDuration= 30)
-            new_state = int(60 / max(step % 100, 20))
-            print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
-            print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
-            print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
+    # if step % 20 == 0:
+    #     print("Testing Traffic Light controls:")
+    #     for tls in traci.trafficlight.getIDList():
+    #         # traci.trafficlight.setPhaseDuration(tlsID=tls, phaseDuration= 30)
+    #         new_state = int(60 / max(step % 100, 20))
+    #         print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
+    #         print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
+    #         print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
+    #
+    #         print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
+    #         print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
+    #
+    #         # traci.trafficlight.setPhase(tlsID=tls, index=new_state)
+    #         # print("\n\n\nTraffic Light state changed:", new_state)
 
-            print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
-            print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
+    tls = "South_East_TL"
+    print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
+    print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
+    print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
 
-            # traci.trafficlight.setPhase(tlsID=tls, index=new_state)
-            # print("\n\n\nTraffic Light state changed:", new_state)
+    print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
+    print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
+
+    print("in a for:")
 
 
+
+    # Links controlled by  a single Traffic Light
+    # this will be true for all TLs
+    controlled_edges = []
+
+
+    for i in traci.trafficlight.getControlledLinks(tlsID=tls):
+        if len(i) > 0:
+            tmp = i[0][0]
+
+            controlled_edges.append(tmp[:-2])
+
+    print("Controlled edges:")
+    for i in controlled_edges:
+        print(i)
+
+    print("\n")
+
+    #
+    cluster_nominees = []
+
+    for i in controlled_edges:
+        for j in range(0, len(clusters_edge)):
+            if clusters_edge[j] == i:
+                print("cluster {} is on {}!".format(j, i))
+                cluster_nominees.append(j)
+                # ezekbol mar lehet kovetkeztetest vonni: megvan a harom kluszter ami szobajohet, itt utankent sulyozzuk es utana váltunk fázist
+
+    print("\n\nCluster {} has priority!\n\n".format(find_priority_edge(cluster_nominees, old_clusters)))
 
     # city.print()
 

@@ -1,6 +1,6 @@
 <configuration>
     <input>
-        <net-file value="pecs_belvaros_cut.net.xml"/>
+        <net-file value="pecs_belvaros_cut_changedTL.net.xml"/>
         <route-files value="pecs_belvaros_cut.trips.xml"/>
     </input>
     <time>
