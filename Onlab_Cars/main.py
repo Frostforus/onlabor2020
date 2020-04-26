@@ -30,6 +30,7 @@ old_clusters = {}
 temp_clusters = {}
 
 
+current_prio = -1
 
 
 
@@ -37,8 +38,8 @@ city = Map(traci.edge.getIDList())
 # TODO at kell irni
 
 # Basically infinite phase duration
-for tls in traci.trafficlight.getIDList():
-    traci.trafficlight.setPhaseDuration(tls, 12000)
+# for tls in traci.trafficlight.getIDList():
+#     traci.trafficlight.setPhaseDuration(tls, 12000)
 
 step = 0
 while step < 500:
@@ -190,6 +191,10 @@ while step < 500:
         # old_clusters = copy.deepcopy(temp_clusters)
         temp_clusters.clear()
 
+
+
+    # TODO: Generalization for all TLS on the map:
+
     # if step % 20 == 0:
     #     print("Testing Traffic Light controls:")
     #     for tls in traci.trafficlight.getIDList():
@@ -244,7 +249,10 @@ while step < 500:
                 cluster_nominees.append(j)
                 # ezekbol mar lehet kovetkeztetest vonni: megvan a harom kluszter ami szobajohet, itt utankent sulyozzuk es utana váltunk fázist
 
-    print("\n\nCluster {} has priority!\n\n".format(find_priority_edge(cluster_nominees, old_clusters)))
+    print("\n\nCluster {} has priority!\n\n".format(find_priority_edge(cluster_nominees, old_clusters, current_prio)))
+
+    #itt vált először a sárgára, amit majd a zöld követ a current prio remelhetoleg megoldja ha ne valtson
+
 
     # city.print()
 

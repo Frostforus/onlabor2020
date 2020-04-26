@@ -15,7 +15,7 @@ class Clusters:
         self.Clusters = dict()
 
 
-def find_priority_edge(clus_nom, all_clusters):
+def find_priority_edge(clus_nom, all_clusters, current_prio = 0):
     priority_cluster = 0
     biggest_len = 0
     for i in clus_nom:
