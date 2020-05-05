@@ -5,6 +5,7 @@ import traci
 from vehicles import *
 from Clustering import *
 import numpy as np
+from SafePhaseChanging import *
 import pandas as pd
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import jaccard_score
@@ -29,17 +30,22 @@ colours = [(230, 25, 75), (60, 180, 75), (255, 225, 25), (0, 130, 200), (245, 13
 old_clusters = {}
 temp_clusters = {}
 
+TEMP_STATE_OF_CHANGE = 0
 
+# variables needed for trafficlightchange:
 current_prio = -1
-
-
+time_passed_since_switch = 100
+state_of_change = 0
+current_phase = 0
+desired_phase = 0
 
 city = Map(traci.edge.getIDList())
 # TODO at kell irni
 
 # Basically infinite phase duration
+
 # for tls in traci.trafficlight.getIDList():
-#     traci.trafficlight.setPhaseDuration(tls, 12000)
+# traci.trafficlight.setPhaseDuration(tls, 12000)
 
 step = 0
 while step < 500:
@@ -51,7 +57,6 @@ while step < 500:
 
     for i in range(0, 50):
         clusters_edge.append("")
-
 
     traci.simulationStep()
     step += 1
@@ -157,7 +162,7 @@ while step < 500:
                 result[key] = value
 
         old_clusters = copy.deepcopy(result)
-        print(old_clusters)
+        # print(old_clusters)
 
         for i in range(0, len(clusters_life)):
             if i in old_clusters.keys():
@@ -167,15 +172,15 @@ while step < 500:
                 # print("this cluster is dead:", i)
                 clusters_life[i] = 0
 
-        print("\nClusters Edge:")
+        # print("\nClusters Edge:")
 
         # Finding what edge a cluster is on
         for i in old_clusters:
-            print(old_clusters[i])
+            # print(old_clusters[i])
             for j in old_clusters[i]:
                 clusters_edge[i] = traci.vehicle.getRoadID(j)
                 break
-            print(i, ": ", clusters_edge[i], "with a size of: ", len(old_clusters[i]))
+            # print(i, ": ", clusters_edge[i], "with a size of: ", len(old_clusters[i]))
 
         x = 0
         for i in clusters_life:
@@ -191,41 +196,12 @@ while step < 500:
         # old_clusters = copy.deepcopy(temp_clusters)
         temp_clusters.clear()
 
-
-
     # TODO: Generalization for all TLS on the map:
 
-    # if step % 20 == 0:
-    #     print("Testing Traffic Light controls:")
-    #     for tls in traci.trafficlight.getIDList():
-    #         # traci.trafficlight.setPhaseDuration(tlsID=tls, phaseDuration= 30)
-    #         new_state = int(60 / max(step % 100, 20))
-    #         print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
-    #         print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
-    #         print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
-    #
-    #         print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
-    #         print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
-    #
-    #         # traci.trafficlight.setPhase(tlsID=tls, index=new_state)
-    #         # print("\n\n\nTraffic Light state changed:", new_state)
-
+    # for here:
     tls = "South_East_TL"
-    print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
-    print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
-    print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
 
-    print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
-    print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
-
-    print("in a for:")
-
-
-
-    # Links controlled by  a single Traffic Light
-    # this will be true for all TLs
     controlled_edges = []
-
 
     for i in traci.trafficlight.getControlledLinks(tlsID=tls):
         if len(i) > 0:
@@ -233,27 +209,112 @@ while step < 500:
 
             controlled_edges.append(tmp[:-2])
 
-    print("Controlled edges:")
+    # print("Controlled edges:")
     for i in controlled_edges:
-        print(i)
-
-    print("\n")
+        pass
+        # print(i)
 
     #
     cluster_nominees = []
 
+    # TODO: Ez automatikusan történjen minden Lámpánál:
+    # ez még nem megy és ezért nem tudom minimális konfiguráció nélkül mindegyikre
+    control_Dict = {"gneE13": 2, "-41714395#3": 4, "gneE8": 0}
+
     for i in controlled_edges:
         for j in range(0, len(clusters_edge)):
-            if clusters_edge[j] == i:
-                print("cluster {} is on {}!".format(j, i))
+            if clusters_edge[j] == i and j not in cluster_nominees:
+                # print("cluster {} is on {}!".format(j, i))
                 cluster_nominees.append(j)
-                # ezekbol mar lehet kovetkeztetest vonni: megvan a harom kluszter ami szobajohet, itt utankent sulyozzuk es utana váltunk fázist
+                # ezekbol mar lehet kovetkeztetest vonni: megvan a harom kluszter ami szobajohet, itt utankent
+                # sulyozzuk es utana váltunk fázist
 
-    print("\n\nCluster {} has priority!\n\n".format(find_priority_edge(cluster_nominees, old_clusters, current_prio)))
+    # Ez lehet lokális is
+    min_phase_time = 20
 
-    #itt vált először a sárgára, amit majd a zöld követ a current prio remelhetoleg megoldja ha ne valtson
+    # a time_passed_since_switch mindegyik lámpánál külön kell tárolni
+    if True:
+        tls_x = 1784.5
+        tls_y = 515.21
+
+        print("Cluster Nominees: ", cluster_nominees)
+        new_prio = find_priority_edge(cluster_nominees, old_clusters, current_prio, tls_x=tls_x, tls_y=tls_y)
+        print("Current Prio:", current_prio)
+        print("New Prio: ", new_prio)
+
+        print("Time Passed since last change:", time_passed_since_switch)
+        print("state of change:", state_of_change, "\n")
+        # Csak akkor kell váltani ha másik klaszter kap priot
+        if current_prio != new_prio and new_prio != 0:
+            #current_prio = new_prio
+
+            # check which edge prio cluster is on, and find with state gives it green, set to green
+
+            prio_state = clusters_edge[new_prio]
+            print("Current Prios Edge: ", clusters_edge[new_prio])
+            print("Current Prios State: ", control_Dict[prio_state])
+            if state_of_change == 0:
+                time_passed_since_switch = traci.trafficlight.getPhaseDuration(tls) - (
+                        traci.trafficlight.getNextSwitch(tls) - traci.simulation.getTime())
+
+            if time_passed_since_switch > 20 and state_of_change == 0:
+                print("Updating current and desired phases")
+                current_phase = traci.trafficlight.getPhase(tlsID=tls)
+                desired_phase = control_Dict[prio_state]
+
+            print("!!!!!!\nStuff before function:")
+            print("")
+            print("current phase:", current_phase)
+            print("desired phase:", desired_phase)
+            print("state of change:", state_of_change, "\n")
+            time_passed_since_switch, state_of_change = ChangeToDesiredPhase(tls=tls, current_phase=current_phase,
+                                                                             desired_phase=desired_phase,
+                                                                             state_of_change=state_of_change,
+                                                                             time_passed_since_switch=time_passed_since_switch)
+            # traci.trafficlight.setPhase(tlsID=tls, index=control_Dict[prio_state])
+
+            # traci.trafficlight.setPhase(tlsID=tls, index=new_state)
+
+    if state_of_change == 0:
+        time_passed_since_switch = traci.trafficlight.getPhaseDuration(tls) - (
+                    traci.trafficlight.getNextSwitch(tls) - traci.simulation.getTime())
+
+    print("Current Phase: ", traci.trafficlight.getPhase(tlsID=tls))
+
+    # print("Cluster {0} has priority!\n\n".format(find_priority_edge(cluster_nominees, old_clusters, current_prio)))
 
 
     # city.print()
 
 traci.close(True)
+
+
+# Testing Code:
+
+# if step % 20 == 0:
+#     print("Testing Traffic Light controls:")
+#     for tls in traci.trafficlight.getIDList():
+#         # traci.trafficlight.setPhaseDuration(tlsID=tls, phaseDuration= 30)
+#         new_state = int(60 / max(step % 100, 20))
+#         print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
+#         print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
+#         print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
+#
+#         print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
+#         print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
+#
+#         # traci.trafficlight.setPhase(tlsID=tls, index=new_state)
+#         # print("\n\n\nTraffic Light state changed:", new_state)
+
+
+# print("\n\nID:", tls, "State:", traci.trafficlight.getPhase(tlsID=tls))
+# print("Complete Def:", traci.trafficlight.getCompleteRedYellowGreenDefinition(tlsID=tls))
+# print("Get Next Switch:", traci.trafficlight.getNextSwitch(tlsID=tls))
+#
+# print("Controlled Lanes:", traci.trafficlight.getControlledLanes(tlsID=tls))
+# print("Controlled Links:", traci.trafficlight.getControlledLinks(tlsID=tls))
+
+# print("in a for:")
+
+# Links controlled by  a single Traffic Light
+# this will be true for all TLs
