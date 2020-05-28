@@ -2,7 +2,7 @@ import traci
 
 
 def ChangeToDesiredPhase(tls, current_phase, desired_phase, state_of_change, time_passed_since_switch):
-    if current_phase == desired_phase or 20 >= time_passed_since_switch:
+    if current_phase == desired_phase or 23 >= time_passed_since_switch:
         print("Nothing happened")
         return time_passed_since_switch, state_of_change
 
@@ -24,10 +24,10 @@ def ChangeToDesiredPhase(tls, current_phase, desired_phase, state_of_change, tim
 
     elif state_of_change == 1 + 2:
         traci.trafficlight.setPhase(tlsID=tls, index=desired_phase)
-        print("Phase Change successful!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", desired_phase)
+        print("Phase Change successful!!!:", desired_phase)
         state_of_change = 0
         # time_passed_since_switch = 0
         return time_passed_since_switch, state_of_change
 
     else:
-        return state_of_change  # current state is good
+        return time_passed_since_switch, state_of_change  # current state is good

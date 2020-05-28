@@ -24,19 +24,21 @@ def find_priority_edge(clus_nom, all_clusters, current_prio, tls_x, tls_y):
         priority_cluster = current_prio
 
         current_distance = find_distance(current_prio, all_clusters, tls_x, tls_y)
-        biggest_weight = (len(all_clusters[current_prio]) / max(current_distance, 1)) * 1.1  # Súlyozzás
+        biggest_weight = (len(all_clusters[current_prio]) / max(current_distance, 1)) * 1.05  # Súlyozzás
     # Ha nem akkor biztosan új lesz
     else:
         priority_cluster = 0
         biggest_weight = 0
 
+    print("Prio w:  {}\t cluster: {}".format(biggest_weight, priority_cluster))
     for i in clus_nom:
         # print("Cluster id:", i)
         distance_from_tls = find_distance(i, all_clusters, tls_x, tls_y)
         # print("Distance from TLS:", distance_from_tls)
 
         candidate_weight = len(all_clusters[i]) / max(distance_from_tls, 1)
-        if candidate_weight > biggest_weight:
+        print("Can w: {},\t clusterlen: {} \t dist: {}".format(candidate_weight,len(all_clusters[i]),max(distance_from_tls, 1)))
+        if candidate_weight >= biggest_weight:
             biggest_weight = candidate_weight
             priority_cluster = int(i)
 

@@ -48,6 +48,13 @@ city = Map(traci.edge.getIDList())
 # traci.trafficlight.setPhaseDuration(tls, 12000)
 
 step = 0
+
+all_cars_coming_out = 0
+for i in traci.inductionloop.getIDList():
+    if i[0:5] == "e1Det":
+        print(i, ":")
+        print(traci.inductionloop.getVehicleData(i))
+
 while step < 500:
     clusters_life = []
     clusters_edge = []
@@ -106,8 +113,7 @@ while step < 500:
 
                 runner += 1
 
-        # print("New clustered formed: ", temp_clusters)
-        # print("Previous clusters:", old_clusters)
+
         new_clusters = {}
         old_temp_clusters = {}
 
@@ -196,6 +202,7 @@ while step < 500:
         # old_clusters = copy.deepcopy(temp_clusters)
         temp_clusters.clear()
 
+
     # TODO: Generalization for all TLS on the map:
 
     # for here:
@@ -246,7 +253,7 @@ while step < 500:
         print("state of change:", state_of_change, "\n")
         # Csak akkor kell váltani ha másik klaszter kap priot
         if current_prio != new_prio and new_prio != 0:
-            #current_prio = new_prio
+            # current_prio = new_prio
 
             # check which edge prio cluster is on, and find with state gives it green, set to green
 
@@ -257,7 +264,7 @@ while step < 500:
                 time_passed_since_switch = traci.trafficlight.getPhaseDuration(tls) - (
                         traci.trafficlight.getNextSwitch(tls) - traci.simulation.getTime())
 
-            if time_passed_since_switch > 20 and state_of_change == 0:
+            if time_passed_since_switch > 23 and state_of_change == 0:
                 print("Updating current and desired phases")
                 current_phase = traci.trafficlight.getPhase(tlsID=tls)
                 desired_phase = control_Dict[prio_state]
@@ -277,17 +284,20 @@ while step < 500:
 
     if state_of_change == 0:
         time_passed_since_switch = traci.trafficlight.getPhaseDuration(tls) - (
-                    traci.trafficlight.getNextSwitch(tls) - traci.simulation.getTime())
+                traci.trafficlight.getNextSwitch(tls) - traci.simulation.getTime())
 
     print("Current Phase: ", traci.trafficlight.getPhase(tlsID=tls))
 
     # print("Cluster {0} has priority!\n\n".format(find_priority_edge(cluster_nominees, old_clusters, current_prio)))
 
-
     # city.print()
+    for i in traci.inductionloop.getIDList():
+        if i[0:5] == "e1Det":
+            print(i, ":")
+            all_cars_coming_out += traci.inductionloop.getLastStepVehicleNumber(i)
 
+print("All cars coming out of this junction:", all_cars_coming_out)
 traci.close(True)
-
 
 # Testing Code:
 

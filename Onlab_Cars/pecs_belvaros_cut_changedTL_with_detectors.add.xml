@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 05/05/20 16:42:20 by Eclipse SUMO netedit Version 1.5.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <sumo-net-file value="C:\PythonProjects\SUMO%20Projects\Projects\Onlab_Cars\pecs_belvaros_cut_changedTL.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="C:\PythonProjects\SUMO%20Projects\Projects\Onlab_Cars\pecs_belvaros_cut_changedTL.net.xml"/>
+        <output.street-names value="true"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="false"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="5"/>
+        <junctions.limit-turn-speed value="5.5"/>
+        <rectangular-lane-cut value="false"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="false"/>
+    </pedestrian>
+
+    <netedit>
+        <additional-files value="C:\PythonProjects\SUMO%20Projects\Projects\Onlab_Cars\pecs_belvaros_cut_changedTL_with_detectors.add.xml"/>
+    </netedit>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <e1Detector id="e1Detector_41714395#1_0_2" lane="41714395#1_0" pos="3.53" freq="900.00" file="e1Detector_41714395#1_0_2.xml"/>
+    <e1Detector id="e1Detector_41714395#1_1_3" lane="41714395#1_1" pos="3.65" freq="900.00" file="e1Detector_41714395#1_1_3.xml"/>
+    <e1Detector id="e1Detector_gneE12_0_1" lane="gneE12_0" pos="4.64" freq="900.00" file="e1Detector_gneE12_0_1.xml"/>
+    <e1Detector id="e1Detector_gneE12_1_0" lane="gneE12_1" pos="4.68" freq="900.00" file="e1Detector_gneE12_1_0.xml"/>
+    <e1Detector id="e1Detector_gneE6_0_5" lane="gneE6_0" pos="6.60" freq="900.00" file="e1Detector_gneE6_0_5.xml"/>
+
+    <e1Detector id="e1Detector_gneE6_1_4" lane="gneE6_1" pos="6.09" freq="900.00" file="e1Detector_gneE6_1_4.xml"/>
+</additional>

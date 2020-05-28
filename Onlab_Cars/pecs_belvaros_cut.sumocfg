@@ -2,6 +2,7 @@
     <input>
         <net-file value="pecs_belvaros_cut_changedTL.net.xml"/>
         <route-files value="pecs_belvaros_cut.trips.xml"/>
+        <additional-files value="pecs_belvaros_cut_changedTL_with_detectors.add.xml"/>
     </input>
     <time>
         <begin value="0"/>
